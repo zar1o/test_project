@@ -1,0 +1,12 @@
+node_modules
+dist
+*.local
+.DS_Store
+.vercel
+# Reference material stays local: screenshots contain personal banking data
+image.png
+telegram-cloud-photo-*.jpg
+DESIGN-revolut.md
+.claude/
+test-results/
+screenshots/
