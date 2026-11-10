@@ -743,7 +743,7 @@ html[data-deck="held"] main {
 /* While dealing, each top-level glass surface waits for its card to land. */
 html[data-deck="deal"]
   main
-  :is(.glass, .glass-control, .card-accent, .card-silver):not(:is(.glass, .glass-control, .card-accent, .card-silver) *) {
+  :is(.glass, .glass-control, .card-accent, .card-chrome):not(:is(.glass, .glass-control, .card-accent, .card-chrome) *) {
   opacity: 0;
 }
 
@@ -791,25 +791,25 @@ html[data-deck="deal"]
 }
 
 /* ------------------------------------------------------------------ */
-/*  The silver card                                                    */
-/*  Polished metal, like the silver pieces of the 3D set: a grey body  */
-/*  crossed by the hard light-and-dark bands a mirror finish shows,    */
-/*  with a faint horizontal grain and a bevelled edge. It is the same  */
-/*  in both themes and carries its own dark ink (secondary text holds  */
-/*  4.5:1 on its darkest band).                                        */
+/*  The chrome card                                                    */
+/*  A mirror finish: it shows what it reflects — a bright sky that     */
+/*  darkens towards its lower edge — with a window's glint in one      */
+/*  corner and the sides turning away from the light. The same in both */
+/*  themes,                                                            */
+/*  with its own dark ink.                                             */
 /* ------------------------------------------------------------------ */
 
-.card-silver {
-  --ink: #0e1014;
-  --ink-2: #1c1f26;
-  --mute: #252932;
-  --stone: #454a55;
-  --hairline: rgb(14 16 20 / 0.16);
-  --hairline-strong: rgb(14 16 20 / 0.28);
-  --fill: rgb(255 255 255 / 0.5);
-  --fill-hover: rgb(255 255 255 / 0.78);
-  --fill-sunken: rgb(14 16 20 / 0.2);
-  --neutral-tint: rgb(14 16 20 / 0.12);
+.card-chrome {
+  --ink: #0b0d11;
+  --ink-2: #181b21;
+  --mute: #23272f;
+  --stone: #41464f;
+  --hairline: rgb(11 13 17 / 0.16);
+  --hairline-strong: rgb(11 13 17 / 0.3);
+  --fill: rgb(255 255 255 / 0.55);
+  --fill-hover: rgb(255 255 255 / 0.85);
+  --fill-sunken: rgb(11 13 17 / 0.18);
+  --neutral-tint: rgb(11 13 17 / 0.1);
   --accent: #2f20b4;
   /* the share bars: the indigo of the accent, on metal */
   --rate-bar: linear-gradient(90deg, #7a6cf2, #4632dc);
@@ -817,34 +817,97 @@ html[data-deck="deal"]
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  container-type: inline-size;
   color: var(--ink);
   background:
-    /* grain: hairlines along the direction the metal was brushed */
-    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.07) 0 1px, rgb(0 0 0 / 0.035) 1px 2px, transparent 2px 3px),
-    /* reflections: alternating bands, as on a curved mirror surface */
+    /* the glint of a window, top left */
+    radial-gradient(70% 55% at 14% 0%, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0) 62%),
+    /* a second, fainter reflection crossing the face */
     linear-gradient(
-      118deg,
-      #eef0f4 0%,
-      #a2a9b5 13%,
-      #f2f4f7 27%,
-      #b9bfc9 41%,
-      #9299a5 56%,
-      #e3e6eb 70%,
-      #a8afba 84%,
-      #cdd2da 100%
-    );
+      104deg,
+      rgb(255 255 255 / 0) 52%,
+      rgb(255 255 255 / 0.55) 60%,
+      rgb(255 255 255 / 0) 66%
+    ),
+    /* the sides of a curved sheet turn away from the light */
+    linear-gradient(
+      90deg,
+      rgb(11 13 17 / 0.34),
+      rgb(11 13 17 / 0) 7%,
+      rgb(11 13 17 / 0) 93%,
+      rgb(11 13 17 / 0.38)
+    ),
+    /* the sky it reflects, darkening towards the horizon */
+    linear-gradient(180deg, #fbfcfd 0%, #e2e5ea 34%, #c3c8d0 72%, #aab0ba 100%);
   box-shadow:
-    0 1px 1px rgb(var(--shadow-ink) / 0.1),
-    0 14px 30px -16px rgb(var(--shadow-ink) / 0.6),
-    0 30px 60px -36px rgb(var(--shadow-ink) / 0.5),
-    inset 0 1.5px 0 rgb(255 255 255 / 0.95),
-    inset 0 0 0 1px rgb(255 255 255 / 0.4),
-    inset 0 -2px 0 rgb(14 16 20 / 0.22);
+    0 1px 1px rgb(var(--shadow-ink) / 0.12),
+    0 16px 32px -16px rgb(var(--shadow-ink) / 0.65),
+    0 32px 64px -36px rgb(var(--shadow-ink) / 0.55),
+    inset 0 1.5px 0 #fff,
+    inset 0 -1.5px 0 rgb(11 13 17 / 0.35);
 }
 
-.card-silver ::selection {
-  background: rgb(14 16 20 / 0.22);
+/* The rim: a bright bevel where the light falls, dark where it does not. */
+.card-chrome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(160deg, #fff 0%, #8a9099 32%, #fff 52%, #3a3f48 78%, #c9cdd4 100%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.card-chrome ::selection {
+  background: rgb(11 13 17 / 0.22);
   color: var(--ink);
+}
+
+/* The wordmark: plain black letters as wide as the card, sunk into its
+   lower edge. Everything is sized from one font size, set by the width of
+   the card. Real text, no filter or clipped background, so the letters stay
+   vector-sharp at any size. */
+.chrome-mark {
+  /* "VAT" in this face is about 1.85em wide: this makes it span the card */
+  --mark: min(51cqw, 190px);
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 0;
+  height: calc(var(--mark) * 0.56);
+  overflow: hidden;
+  font-size: var(--mark);
+  pointer-events: none;
+  user-select: none;
+}
+
+.chrome-mark__text {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.38em;
+  text-align: center;
+  /* text-align centres the text box; this centres the ink. The box is off
+     because of the tight letter spacing (it trails the last letter) and the
+     uneven side bearings of V and T. Measured for "VAT" in General Sans 600. */
+  translate: -0.018em 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* Content clears the wordmark. Container units here resolve against the
+   card, which is the query container. */
+.chrome-mark-room {
+  padding-bottom: calc(min(51cqw, 190px) * 0.56 + 8px);
 }
 
 /* Bars grow from the baseline when a period loads. */

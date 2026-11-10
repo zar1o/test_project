@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 // The register at a glance, in one row above the documents:
 //   the gross total (the one accent card on the page),
 //   net and VAT over time (by day, week or month),
-//   and the amounts per VAT rate (the silver card).
+//   and the amounts per VAT rate (the chrome card).
 // All three read the same filtered result as the table below them.
 
 const DOCS = ["dokument", "dokumenty", "dokumentów"] as [string, string, string]
@@ -545,7 +545,7 @@ function ChartCard({
 function RateRows({ rates, unavailable }: { rates: RateTotal[]; unavailable: boolean }) {
   const totalVat = rates.reduce((s, r) => s + Math.abs(r.vat), 0)
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-2.5">
       {rates.map((r) => {
         const share = totalVat ? Math.abs(r.vat) / totalVat : 0
         return (
@@ -576,6 +576,19 @@ function RateRows({ rates, unavailable }: { rates: RateTotal[]; unavailable: boo
   )
 }
 
+/**
+ * The rest of the card's title, set like the wordmark at the foot of a site:
+ * letters as wide as the card, sunk into its lower edge, on the dark band of
+ * horizon a chrome surface reflects. Decoration only: the heading says it too.
+ */
+function ChromeWordmark({ children }: { children: string }) {
+  return (
+    <span aria-hidden className="chrome-mark">
+      <span className="chrome-mark__text">{children}</span>
+    </span>
+  )
+}
+
 function RatesCard({
   rates,
   unavailable,
@@ -587,28 +600,25 @@ function RatesCard({
 }) {
   const isMobile = useIsMobile()
   const [open, setOpen] = useState(false)
-  const chips = (
-    <span className="flex gap-1.5">
-      <Chip size="sm" tone="neutral">
-        VAT
-      </Chip>
-      <Chip size="sm" tone="outline">
-        DEMO
-      </Chip>
-    </span>
+  const demo = (
+    <Chip size="sm" tone="outline">
+      DEMO
+    </Chip>
   )
 
-  // On a phone the breakdown folds away: the total and the documents come first.
+  // On a phone the breakdown folds away: the total and the documents come
+  // first. Folded, the card is a single line, so it names itself in full; the
+  // wordmark comes with the breakdown.
   if (isMobile) {
     return (
-      <section className={cn("card-silver rounded-[24px] p-1", className)} aria-label="Kwoty według stawek VAT">
+      <section className={cn("card-chrome rounded-[24px] p-1", className)} aria-label="Stawki VAT">
         <button
           type="button"
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
-          className="flex h-12 w-full items-center justify-between rounded-[20px] px-4 text-[14px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="relative z-10 flex h-12 w-full items-center justify-between rounded-[20px] px-4 text-[14px] font-semibold outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
-          Kwoty według stawek VAT
+          Stawki VAT
           <ChevronDown className={cn("size-[18px] text-mute transition-transform duration-300", open && "rotate-180")} />
         </button>
         <AnimatePresence initial={false}>
@@ -618,12 +628,13 @@ function RatesCard({
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
+              className="relative overflow-hidden"
             >
-              <div className="px-4 pb-4 pt-1">
-                <div className="mb-3">{chips}</div>
+              <div className="chrome-mark-room relative z-10 px-4 pt-1">
+                <div className="mb-3">{demo}</div>
                 <RateRows rates={rates} unavailable={unavailable} />
               </div>
+              <ChromeWordmark>VAT</ChromeWordmark>
             </motion.div>
           )}
         </AnimatePresence>
@@ -632,16 +643,19 @@ function RatesCard({
   }
 
   return (
-    <section className={cn("card-silver rounded-[28px] p-5", className)} aria-labelledby="rates-title">
-      <div className="flex items-center justify-between gap-3">
-        <h2 id="rates-title" className="text-[13px] font-semibold text-ink-2">
-          Stawki VAT
-        </h2>
-        {chips}
+    <section className={cn("card-chrome flex flex-col rounded-[28px]", className)} aria-labelledby="rates-title">
+      <div className="chrome-mark-room relative z-10 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="rates-title" className="text-[13px] font-semibold text-ink-2">
+            Stawki<span className="sr-only"> VAT</span>
+          </h2>
+          {demo}
+        </div>
+        <div className="mt-3.5">
+          <RateRows rates={rates} unavailable={unavailable} />
+        </div>
       </div>
-      <div className="mt-4">
-        <RateRows rates={rates} unavailable={unavailable} />
-      </div>
+      <ChromeWordmark>VAT</ChromeWordmark>
     </section>
   )
 }

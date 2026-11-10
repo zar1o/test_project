@@ -17,7 +17,7 @@
 // they run on the main thread; React mounts the next page only while the deck
 // is at rest, where a dropped frame cannot be seen.
 
-const SURFACE = ".glass, .glass-control, .card-accent, .card-silver"
+const SURFACE = ".glass, .glass-control, .card-accent, .card-chrome"
 
 /** All timings in ms. One place to retune the feel of the transition. */
 const T = {
