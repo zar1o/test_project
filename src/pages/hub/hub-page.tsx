@@ -1,19 +1,24 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
 import { Info } from "lucide-react"
+import planet from "@/assets/planet.avif"
+import { Chip } from "@/components/ui/chip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { fetchHub } from "@/data/api"
+import { USER } from "@/data/fixtures"
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { whenDeckIdle } from "@/lib/deck"
+import { enter } from "@/lib/enter"
 import { useScenario } from "@/lib/scenario"
-import { AreaPills } from "./area-pills"
+import { cn } from "@/lib/utils"
+import { FloatingIcons } from "./floating-icons"
 import { GlobalSearch } from "./global-search"
-import { OverviewCards } from "./overview-cards"
+import { Overview } from "./overview-cards"
 
-const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  transition: { delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-})
+// The home page: a greeting and the search in the middle, then the cards.
+// Everything else follows the register's layout (title in the top bar,
+// accent card first).
 
 export function useHubQuery() {
   const { scenario } = useScenario()
@@ -25,21 +30,83 @@ export function useHubQuery() {
   })
 }
 
+/* ------------------------------- Greeting -------------------------------- */
+
+// The greeting types itself out the first time the home page is shown, and
+// only then: coming back to the page finds it already written.
+let greeted = false
+
+/** Pause before the next character: people slow down at punctuation. */
+function keystroke(previous: string | undefined) {
+  if (previous === undefined) return 480
+  if (previous === ",") return 260
+  if (previous === " ") return 90
+  return 58
+}
+
+function Greeting() {
+  const reduce = useReducedMotion()
+  const wide = useMediaQuery("(min-width: 640px)")
+  const text = `Witaj, ${wide ? USER.name : USER.name.split(" ")[0]}`
+  // Decided once, on mount: is this the showing that gets typed?
+  const [typing] = useState(() => !greeted && !reduce)
+  const [count, setCount] = useState(typing ? 0 : Number.MAX_SAFE_INTEGER)
+  // The first keystroke waits until the cards have been dealt.
+  const [onStage, setOnStage] = useState(false)
+  const done = count >= text.length
+
+  useEffect(() => {
+    let live = true
+    void whenDeckIdle().then(() => live && setOnStage(true))
+    return () => {
+      live = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (done) {
+      greeted = true
+      return
+    }
+    if (!onStage) return
+    const timer = window.setTimeout(() => setCount((c) => c + 1), keystroke(text[count - 1]))
+    return () => window.clearTimeout(timer)
+  }, [count, done, onStage, text])
+
+  return (
+    <p className="text-balance text-center font-display text-[clamp(2rem,1.4rem+2.7vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.035em]">
+      <span className="sr-only">{text}!</span>
+      {/* The whole line is laid out from the start and revealed letter by
+          letter, so nothing shifts while it types. */}
+      <span aria-hidden>
+        {text.slice(0, count)}
+        {typing && onStage && <span className={cn("greeting-caret", done && "greeting-caret--done")} />}
+        <span className="opacity-0">{text.slice(count)}</span>
+        <span className={cn("greeting-hand", done && (typing ? "greeting-hand--wave" : "greeting-hand--still"))}>👋</span>
+      </span>
+    </p>
+  )
+}
+
+/* --------------------------------- Page ---------------------------------- */
+
 function DemoNotice() {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-7 items-center gap-1.5 rounded-full bg-warn-tint px-3 text-xs font-semibold text-warn outline-none transition-colors hover:bg-warn-tint/80 focus-visible:ring-2 focus-visible:ring-accent"
+          className="glass-control inline-flex h-8 items-center gap-1.5 rounded-full pl-2.5 pr-3 text-[12.5px] font-semibold text-ink-2 outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <Info className="size-3.5" strokeWidth={2.2} />
+          <Info className="size-3.5 text-accent" strokeWidth={2.2} />
           Mapa zakresu · DEMO
         </button>
       </PopoverTrigger>
-      <PopoverContent side="bottom" className="w-80 text-sm">
-        <p className="font-semibold">To jest mapa zakresu, a nie uruchomienie księgowania.</p>
-        <p className="mt-1 text-mute">Dane pozostają demonstracyjne.</p>
+      <PopoverContent align="end" side="bottom" className="w-80 text-sm">
+        <p className="font-semibold">Mapa dostępnych obszarów księgowych dla aktywnej organizacji.</p>
+        <p className="mt-1 text-mute">
+          To jest mapa zakresu, a nie uruchomienie księgowania. Dane pozostają demonstracyjne.
+        </p>
       </PopoverContent>
     </Popover>
   )
@@ -53,32 +120,47 @@ export function HubPage() {
   }, [])
 
   return (
-    <div className="pt-[clamp(2.5rem,1rem+7vh,6.5rem)]">
-      <section className="mx-auto flex max-w-[760px] flex-col items-center text-center">
-        <motion.div {...rise(0)} className="flex items-center gap-2.5">
-          <span className="text-[13px] font-semibold text-accent">Ewidencje</span>
-          <span aria-hidden className="h-3.5 w-px bg-hairline-strong" />
-          <DemoNotice />
-        </motion.div>
-        <motion.h1
-          {...rise(0.05)}
-          className="mt-4 font-display text-[clamp(2.4rem,1.7rem+3.2vw,4rem)] font-medium leading-[0.98] tracking-[-0.035em] text-balance"
-        >
-          Obszary księgowe
-        </motion.h1>
-        <motion.p {...rise(0.1)} className="mt-4 max-w-[54ch] text-[15px] text-mute text-pretty sm:text-base">
-          Mapa dostępnych obszarów księgowych dla aktywnej organizacji.
-        </motion.p>
-        <motion.div {...rise(0.15)} className="mt-8 w-full sm:mt-10">
-          <GlobalSearch />
-        </motion.div>
-        <div className="mt-5 w-full sm:mt-6">
-          <AreaPills areas={hub.data?.areas} />
-        </div>
-      </section>
+    <div className="relative">
+      <FloatingIcons />
 
-      <div className="mt-[clamp(3rem,2rem+5vh,5.5rem)]">
-        <OverviewCards
+      {/* A rendered image for wide screens, under the cards: a planet towards
+          the upper left. */}
+      <div
+        aria-hidden
+        className="no-print pointer-events-none absolute inset-y-0 left-1/2 -z-[1] hidden w-screen -translate-x-1/2 lg:block"
+      >
+        <img
+          src={planet}
+          alt=""
+          draggable={false}
+          className="deco deco-planet absolute -top-3 left-[clamp(10px,3vw,68px)] w-[clamp(150px,14.5vw,224px)] select-none"
+        />
+      </div>
+
+      <motion.section
+        {...enter(0, 10, 0.45)}
+        aria-label="Powitanie i wyszukiwarka"
+        className="relative z-20 flex flex-col items-center pt-6 sm:pt-9"
+      >
+        <Greeting />
+        {/* Three columns keep the search in the exact middle while the chips
+            sit at the right edge. */}
+        <div className="mt-5 grid w-full items-center gap-2.5 sm:mt-7 lg:grid-cols-[1fr_minmax(0,560px)_1fr]">
+          <span className="max-lg:hidden" />
+          <div className="mx-auto w-full max-w-[560px]">
+            <GlobalSearch />
+          </div>
+          <div className="flex items-center justify-center gap-2 lg:justify-end">
+            <DemoNotice />
+            <Chip tone="outline" className="h-8">
+              Ewidencje
+            </Chip>
+          </div>
+        </div>
+      </motion.section>
+
+      <div className="mt-5 sm:mt-7">
+        <Overview
           data={hub.data}
           isPending={hub.isPending}
           error={hub.error}

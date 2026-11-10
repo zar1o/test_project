@@ -2,7 +2,12 @@ import { createContext, useCallback, useContext, useState, type ReactNode } from
 import { flushSync } from "react-dom"
 import { writeStorage } from "./storage"
 
+/** Dark is the app's own look; light is the visitor's choice, kept in storage. */
 export type Theme = "light" | "dark"
+
+const STORAGE_KEY = "motyw"
+/** The colour the browser tints its own chrome with, per theme. */
+const CHROME = { dark: "#06061C", light: "#E9E5FF" } as const
 
 interface ThemeCtx {
   theme: Theme
@@ -23,7 +28,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const apply = () => {
       flushSync(() => setTheme(next))
       document.documentElement.dataset.theme = next
-      writeStorage("theme", next)
+      document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute("content", CHROME[next])
+      writeStorage(STORAGE_KEY, next)
     }
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown }

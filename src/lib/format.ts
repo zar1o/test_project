@@ -39,6 +39,11 @@ export const MONTHS_LOCATIVE = [
   "lipcu", "sierpniu", "wrześniu", "październiku", "listopadzie", "grudniu",
 ] as const
 
+export const MONTHS_GENITIVE = [
+  "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca",
+  "lipca", "sierpnia", "września", "października", "listopada", "grudnia",
+] as const
+
 export const MONTHS_SHORT = [
   "sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru",
 ] as const

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest"
 import { DOCUMENTS } from "../fixtures"
 import {
   DEFAULT_QUERY,
+  dailyOf,
   filterDocs,
+  monthlyOf,
   normalize,
   paramsFromQuery,
   queryFromParams,
@@ -19,6 +21,30 @@ describe("register logic", () => {
     const rates = ratesOf("sprzedaz", filtered)
     expect(rates.find((r) => r.rate === "23")?.vat).toBe(232300)
     expect(rates.find((r) => r.rate === "np")?.vat).toBe(0)
+  })
+
+  it("splits the period into calendar days that add back up to the totals", () => {
+    const { filtered } = filterDocs(DOCUMENTS, DEFAULT_QUERY)
+    const daily = dailyOf(filtered, 2026, 10)
+    expect(daily).toHaveLength(31)
+    expect(daily.reduce((s, d) => s + d.count, 0)).toBe(14)
+    expect(daily.reduce((s, d) => s + d.net + d.vat, 0)).toBe(1202300)
+    // 1 Oct holds one invoice for 1200,00 net at 23%
+    expect(daily[0]).toEqual({ day: 1, net: 120000, vat: 27600, count: 1 })
+    expect(daily[30]).toEqual({ day: 31, net: 0, vat: 0, count: 0 })
+    expect(dailyOf(filtered, 2026, 2)).toHaveLength(28)
+  })
+
+  it("totals each month of the year under the same filters", () => {
+    const monthly = monthlyOf(DOCUMENTS, DEFAULT_QUERY)
+    expect(monthly).toHaveLength(12)
+    expect(monthly[9]).toEqual({ month: 10, net: 970000, vat: 232300, count: 14 })
+    expect(monthly[8].count).toBe(6)
+    expect(monthly[0]).toEqual({ month: 1, net: 0, vat: 0, count: 0 })
+    // a filter narrows every month, not only the selected one
+    const corrections = monthlyOf(DOCUMENTS, { ...DEFAULT_QUERY, op: "korekta" })
+    expect(corrections[9].count).toBe(1)
+    expect(corrections[8].count).toBe(0)
   })
 
   it("filters by operation, JPK code, series and labels", () => {

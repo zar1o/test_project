@@ -28,7 +28,7 @@ const dotTone = {
   ok: "bg-ok-dot",
   danger: "bg-danger-dot",
   neutral: "bg-stone",
-  accent: "bg-accent",
+  accent: "bg-accent-solid",
   outline: "bg-stone",
 } as const
 

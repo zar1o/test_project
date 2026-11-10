@@ -15,11 +15,11 @@ import { readStorage, writeStorage } from "@/lib/storage"
 import { cn } from "@/lib/utils"
 import { ActiveFilters } from "./active-filters"
 import { clearedFilters } from "./filters"
+import { Insights } from "./insights"
 import { Pagination } from "./pagination"
 import { RegisterHeader } from "./register-header"
 import { RegisterList } from "./register-list"
 import { DEFAULT_COLUMN_ORDER, RegisterTable } from "./register-table"
-import { SummaryCard } from "./summary-card"
 import { Toolbar } from "./toolbar"
 import { useRegisterData, useRegisterParams } from "./use-register"
 
@@ -242,17 +242,18 @@ export function RegisterPage() {
         onRegisterChange={(register) => update({ register, jpk: "all", series: [] })}
       />
 
-      <div className="mt-6 sm:mt-8">
-        <SummaryCard
+      <div className="mt-3 sm:mt-4">
+        <Insights
           register={query.register}
           data={data}
           isPending={result.isPending}
           isError={!!error}
-          periodText={`${MONTHS_NOMINATIVE[query.month - 1]} ${query.year}`}
+          year={query.year}
+          month={query.month}
         />
       </div>
 
-      <div className="mt-6 sm:mt-8">
+      <div className="mt-3 sm:mt-4">
         <Toolbar
           query={query}
           update={update}
@@ -270,7 +271,7 @@ export function RegisterPage() {
       <section
         aria-label={REGISTER_NAMES[query.register].full}
         aria-busy={result.isFetching}
-        className="glass relative mt-4 overflow-hidden rounded-[28px] p-2 print:hidden sm:p-3 lg:p-4"
+        className="glass relative mt-3 overflow-hidden rounded-[28px] p-2 print:hidden sm:p-3 lg:p-4"
       >
         <div
           aria-hidden

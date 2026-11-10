@@ -1,28 +1,63 @@
 import { useEffect, useRef, useState } from "react"
-import { Outlet, useLocation } from "react-router"
+import { Outlet, useBlocker, useLocation } from "react-router"
+import { useQueryClient } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
 import { FlaskConical, X } from "lucide-react"
-import { GradientBackground } from "@/components/ui/jade-sky"
-import { GradientBackgroundNight } from "@/components/ui/jade-night"
+import { Backdrop as Silk } from "@/components/ui/backdrop"
 import { Segmented } from "@/components/ui/segmented"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { GlassCursor } from "./glass-cursor"
 import { TopBar } from "./top-bar"
+import { prefetchDestination } from "@/data/prefetch"
+import { dealDeck, deckEnabled, gatherDeck, introDeck } from "@/lib/deck"
 import { SCENARIOS, useScenario } from "@/lib/scenario"
-import { useTheme } from "@/lib/theme"
 import { installSheen } from "@/lib/sheen"
 import { cn } from "@/lib/utils"
 
 function Backdrop() {
-  const { theme } = useTheme()
   return (
-    <div aria-hidden className="no-print pointer-events-none fixed inset-0 -z-10">
-      <GradientBackground className={cn("!absolute inset-0 transition-opacity duration-500", theme === "dark" && "opacity-0")} />
-      <GradientBackgroundNight
-        className={cn("!absolute inset-0 transition-opacity duration-500", theme === "dark" ? "opacity-100" : "opacity-0")}
-      />
-      <div className="grain absolute inset-0" />
+    <div aria-hidden className="no-print pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <Silk />
     </div>
   )
+}
+
+/**
+ * Runs the deck transition when the app opens and around every change of page. The navigation is
+ * held while the current page is gathered into the deck, released once the
+ * deck is at rest, and the deck is dealt when the next page has mounted.
+ * Changes within a page (filters, an opened document) pass straight through.
+ */
+function useDeckNavigation() {
+  const queryClient = useQueryClient()
+  const { scenario } = useScenario()
+  const { pathname } = useLocation()
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) => currentLocation.pathname !== nextLocation.pathname && deckEnabled(),
+  )
+  const latest = useRef(blocker)
+  latest.current = blocker
+
+  const blocked = blocker.state === "blocked"
+  useEffect(() => {
+    if (!blocked) return
+    const next = latest.current.location
+    // The gather takes about as long as the mock API: fetch behind it, so the
+    // cards are dealt onto a page that already has its data.
+    if (next) prefetchDestination(queryClient, next, scenario)
+    void gatherDeck().then(() => latest.current.proceed?.())
+  }, [blocked, queryClient, scenario])
+
+  const opened = useRef(false)
+  useEffect(() => {
+    const ready = () => queryClient.isFetching() === 0
+    // The very first page is dealt from a deck stacked on the spot; every
+    // later one from the deck its predecessor was gathered into.
+    if (!opened.current) {
+      opened.current = true
+      void introDeck(ready)
+    } else void dealDeck(ready)
+  }, [pathname, queryClient])
 }
 
 const SCENARIO_DOT = { data: "bg-ok-dot", empty: "bg-stone", error: "bg-danger-dot" } as const
@@ -134,6 +169,7 @@ export function AppShell() {
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [pathname])
+  useDeckNavigation()
 
   return (
     <div className="relative min-h-[100dvh]">
@@ -143,6 +179,7 @@ export function AppShell() {
         <Outlet />
       </main>
       <ScenarioDock />
+      <GlassCursor />
     </div>
   )
 }

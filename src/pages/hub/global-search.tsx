@@ -18,6 +18,7 @@ import { useIsMobile } from "@/hooks/use-media-query"
 import { formatDateShort } from "@/lib/format"
 import { useScenario } from "@/lib/scenario"
 import { cn } from "@/lib/utils"
+import { iconHover } from "./icon-hover"
 
 const PLACEHOLDER = "Szukaj dokumentów, kontrahentów, numerów KSeF…"
 const PLACEHOLDER_SHORT = "Szukaj dokumentów"
@@ -264,12 +265,13 @@ function InlineSearch() {
       }}
     >
       <div
+        {...iconHover("search")}
         className={cn(
-          "glass sheen flex h-16 items-center gap-3 rounded-full pl-6 pr-3 transition-shadow duration-200",
+          "glass sheen flex h-12 items-center gap-2.5 rounded-full pl-4 pr-1.5 transition-shadow duration-200",
           open && "shadow-[var(--glass-shadow-float),inset_0_1px_0_var(--glass-highlight),inset_0_0_0_1px_var(--glass-edge)]",
         )}
       >
-        <Search className="size-[22px] shrink-0 text-ink-2" strokeWidth={2} />
+        <Search className="size-[18px] shrink-0 text-ink-2" strokeWidth={2} />
         <Command.Input
           ref={inputRef}
           value={term}
@@ -279,7 +281,7 @@ function InlineSearch() {
           }}
           onFocus={() => setOpen(true)}
           placeholder={PLACEHOLDER}
-          className="h-full min-w-0 flex-1 bg-transparent text-[17px] font-medium text-ink outline-none"
+          className="h-full min-w-0 flex-1 bg-transparent text-[15px] font-medium text-ink outline-none"
         />
         {search.settling && term ? (
           <LoaderCircle className="size-5 shrink-0 animate-spin text-mute" aria-label="Szukam" />
@@ -342,10 +344,10 @@ function MobileSearch() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="glass flex h-14 w-full items-center gap-3 rounded-full pl-5 pr-4 text-left"
+        className="glass flex h-12 w-full items-center gap-2.5 rounded-full pl-4 pr-4 text-left"
       >
         <Search className="size-5 shrink-0 text-ink-2" strokeWidth={2} />
-        <span className="truncate text-base font-medium text-stone">{PLACEHOLDER_SHORT}</span>
+        <span className="truncate text-[15px] font-medium text-stone">{PLACEHOLDER_SHORT}</span>
       </button>
       <FullscreenContent title="Wyszukiwanie dokumentów" onOpenAutoFocus={(e) => e.preventDefault()}>
         <Command

@@ -5,8 +5,13 @@ dist
 .vercel
 # Reference material stays local: screenshots contain personal banking data
 image.png
+image copy*.png
 telegram-cloud-photo-*.jpg
 DESIGN-revolut.md
 .claude/
 test-results/
 screenshots/
+# Raw renders as supplied: the app ships the compressed copies in src/assets
+/Planet.png
+/Sparkle.png
+/Torus.png

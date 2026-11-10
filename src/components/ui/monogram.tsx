@@ -4,7 +4,8 @@ import { initials } from "@/lib/format"
 // Counterparty "logo": a two-letter monogram on a hue derived from the name,
 // so the same company always looks the same across lists, search and details.
 
-const HUES = [158, 172, 140, 196, 96, 210, 124, 184]
+// Violets and their neighbours, from blue to rose, so a long list does not go flat.
+const HUES = [248, 262, 276, 232, 292, 218, 312, 330]
 
 function hueFor(name: string) {
   let h = 0

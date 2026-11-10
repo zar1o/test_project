@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils"
 
 const sizes = {
   xl: { int: "text-[clamp(2.6rem,1.9rem+3vw,4.25rem)] tracking-[-0.035em]", frac: "text-[0.5em] tracking-[-0.01em]" },
+  /** The headline figure of a compact card: one step under xl. */
+  hero: { int: "text-[clamp(2.3rem,1.75rem+1.7vw,3.1rem)] tracking-[-0.03em]", frac: "text-[0.52em] tracking-[-0.01em]" },
   lg: { int: "text-[clamp(1.5rem,1.25rem+1vw,1.95rem)] tracking-[-0.025em]", frac: "text-[0.62em]" },
   md: { int: "tracking-[-0.005em]", frac: "text-[0.86em]" },
 } as const

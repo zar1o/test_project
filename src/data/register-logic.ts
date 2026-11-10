@@ -1,5 +1,7 @@
 import { DEFAULT_PERIOD, REGISTER_RATES } from "./fixtures"
 import type {
+  DayTotal,
+  MonthTotal,
   RateTotal,
   RegisterKind,
   RegisterQuery,
@@ -52,6 +54,36 @@ export function ratesOf(register: RegisterKind, docs: VatDocument[]): RateTotal[
     map.set(l.rate, t)
   }
   return [...map.values()]
+}
+
+/** One entry per calendar day of the month, including days with no documents. */
+export function dailyOf(docs: VatDocument[], year: number, month: number): DayTotal[] {
+  const days = new Date(year, month, 0).getDate()
+  const out: DayTotal[] = Array.from({ length: days }, (_, i) => ({ day: i + 1, net: 0, vat: 0, count: 0 }))
+  for (const d of docs) {
+    if (!inPeriod(d, year, month)) continue
+    const slot = out[Number(d.date.slice(8, 10)) - 1]
+    if (!slot) continue
+    slot.count += 1
+    for (const l of d.lines) {
+      slot.net += l.net
+      slot.vat += l.vat
+    }
+  }
+  return out
+}
+
+/** The twelve months of the query's year, each under the query's own filters. */
+export function monthlyOf(all: VatDocument[], q: RegisterQuery): MonthTotal[] {
+  return Array.from({ length: 12 }, (_, i) => {
+    const { filtered } = filterDocs(all, { ...q, month: i + 1 })
+    const { net, vat } = totalsOf(filtered)
+    return { month: i + 1, net, vat, count: filtered.length }
+  })
+}
+
+export function previousPeriod(year: number, month: number) {
+  return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 }
 }
 
 /** Case- and diacritic-insensitive: "zloty klos" finds "Złoty Kłos". */

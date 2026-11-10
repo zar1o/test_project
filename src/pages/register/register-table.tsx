@@ -118,7 +118,7 @@ function HeaderCell({
         className={cn(
           "relative flex items-center rounded-xl transition-[background-color,box-shadow]",
           right && "justify-end",
-          isDragging && "bg-[var(--glass-control-hover)] shadow-[0_8px_24px_-8px_rgb(18_64_48/0.35)]",
+          isDragging && "bg-[var(--glass-control-hover)] shadow-[0_8px_24px_-8px_rgb(var(--shadow-ink)/0.35)]",
         )}
       >
         <button

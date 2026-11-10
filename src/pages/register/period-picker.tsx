@@ -84,24 +84,19 @@ export function PeriodPicker({
                 }}
                 className={cn(
                   "relative flex h-12 flex-col items-center justify-center rounded-[14px] text-[13.5px] font-semibold capitalize outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent",
-                  selected ? "bg-primary text-on-primary" : "text-ink hover:bg-fill-hover",
+                  selected
+                    ? "bg-primary text-on-primary"
+                    : hasData
+                      ? "text-ink hover:bg-fill-hover"
+                      : "font-medium text-stone hover:bg-fill-hover",
                 )}
               >
                 {m}
-                <span
-                  aria-hidden
-                  className={cn(
-                    "mt-1 size-1 rounded-full",
-                    hasData ? (selected ? "bg-on-primary" : "bg-accent") : "bg-transparent",
-                  )}
-                />
               </button>
             )
           })}
         </div>
-        <p className="mt-3 flex items-center gap-2 text-xs text-mute">
-          <span className="size-1 rounded-full bg-accent" /> miesiące z dokumentami
-        </p>
+        <p className="mt-3 text-xs text-mute">Wyszarzone miesiące nie zawierają dokumentów.</p>
       </PopoverContent>
     </Popover>
   )

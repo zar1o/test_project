@@ -65,7 +65,7 @@ export function Segmented<T extends string>({
               <motion.span
                 layoutId={`seg-${id}`}
                 transition={{ type: "spring", stiffness: 520, damping: 40, mass: 0.9 }}
-                className="absolute inset-0 rounded-full bg-[var(--glass-control-hover)] shadow-[0_1px_2px_rgb(18_64_48/0.08),0_4px_12px_-6px_rgb(18_64_48/0.3),inset_0_1px_0_var(--glass-highlight),inset_0_0_0_1px_var(--glass-edge)] dark:bg-white/14"
+                className="absolute inset-0 rounded-full bg-[var(--glass-control-hover)] shadow-[0_1px_2px_rgb(var(--shadow-ink)/0.08),0_4px_12px_-6px_rgb(var(--shadow-ink)/0.3),inset_0_1px_0_var(--glass-highlight),inset_0_0_0_1px_var(--glass-edge)] dark:bg-[rgb(190_180_255/0.2)]"
               />
             )}
             <span className="relative z-10 flex items-center gap-2">

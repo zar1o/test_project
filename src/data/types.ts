@@ -69,6 +69,22 @@ export interface RateTotal {
   vat: number
 }
 
+/** One calendar day of the period. */
+export interface DayTotal {
+  day: number
+  net: number
+  vat: number
+  count: number
+}
+
+/** One month of the year. */
+export interface MonthTotal {
+  month: number
+  net: number
+  vat: number
+  count: number
+}
+
 export type SortKey = "counterparty" | "date" | "number" | "ksef" | "identifier" | "gross"
 
 export interface RegisterQuery {
@@ -93,6 +109,12 @@ export interface RegisterResult {
   periodTotal: number
   totals: Totals
   byRate: RateTotal[]
+  /** Net and VAT per calendar day, for the documents matching every filter. */
+  daily: DayTotal[]
+  /** Net and VAT per month of the selected year, under the same filters. Twelve entries. */
+  monthly: MonthTotal[]
+  /** The month before, under the same filters; null when it holds no documents. */
+  previous: { year: number; month: number; gross: number } | null
   /** Months that hold documents, per year, for the period picker. */
   monthsWithData: Record<number, number[]>
   page: number

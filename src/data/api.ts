@@ -1,10 +1,13 @@
 import type { Scenario } from "@/lib/scenario"
 import { DOCUMENTS, HUB } from "./fixtures"
 import {
+  dailyOf,
   filterDocs,
   grossOf,
   matchesText,
+  monthlyOf,
   monthsWithData,
+  previousPeriod,
   ratesOf,
   sortDocs,
   totalsOf,
@@ -55,12 +58,17 @@ export async function fetchRegister(
   const sorted = sortDocs(filtered, q.sort)
   const pageCount = Math.max(1, Math.ceil(sorted.length / q.size))
   const page = Math.min(q.page, pageCount)
+  const before = previousPeriod(q.year, q.month)
+  const earlier = filterDocs(all, { ...q, ...before })
   return {
     rows: sorted.slice((page - 1) * q.size, page * q.size),
     total: sorted.length,
     periodTotal: period.length,
     totals: totalsOf(filtered),
     byRate: ratesOf(q.register, filtered),
+    daily: dailyOf(filtered, q.year, q.month),
+    monthly: monthlyOf(all, q),
+    previous: earlier.period.length ? { ...before, gross: totalsOf(earlier.filtered).gross } : null,
     monthsWithData: monthsWithData(all, q.register),
     page,
     pageCount,

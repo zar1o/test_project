@@ -1,7 +1,18 @@
 import { useState } from "react"
-import { Link } from "react-router"
+import { Link, useLocation } from "react-router"
 import { AnimatePresence, motion } from "motion/react"
-import { Bell, Building2, CheckCheck, ChevronDown, LogOut, Moon, Sun } from "lucide-react"
+import {
+  ArrowLeft,
+  Bell,
+  Building2,
+  CheckCheck,
+  ChevronDown,
+  Info,
+  LogOut,
+  Moon,
+  Sun,
+  TriangleAlert,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
@@ -12,37 +23,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { StatusDot } from "@/components/ui/chip"
 import { NOTIFICATIONS, ORGANIZATION, USER } from "@/data/fixtures"
 import { useTheme } from "@/lib/theme"
 import { cn } from "@/lib/utils"
 
-export function AppMark({ className }: { className?: string }) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        "relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-[11px] bg-[radial-gradient(circle_at_50%_15%,#7FBF9A,#B7D98E_60%,#CFE9F0)] shadow-[inset_0_1px_0_rgb(255_255_255/0.7),inset_0_0_0_1px_rgb(255_255_255/0.45)]",
-        className,
-      )}
-    >
-      <svg viewBox="0 0 20 20" className="size-[18px] text-[#191c1f]" fill="none">
-        <path d="M4 6h12M4 10h12M4 14h7" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
-      </svg>
-    </span>
-  )
-}
-
+/**
+ * The account picture: a white head-and-shoulders figure on a soft grey disc,
+ * in the manner of the system default on Apple platforms. The figure is cut
+ * off by the disc, which is what makes it read as a portrait, not an icon.
+ */
 export function UserAvatar({ className }: { className?: string }) {
   return (
     <span
       aria-hidden
       className={cn(
-        "grid size-10 shrink-0 place-items-center rounded-full bg-[conic-gradient(from_210deg,#7FBF9A,#CFE9F0,#B7D98E,#7FBF9A)] text-[13px] font-semibold text-[#14301f] shadow-[inset_0_0_0_2px_rgb(255_255_255/0.75)] dark:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)]",
+        "block size-10 shrink-0 overflow-hidden rounded-full bg-[linear-gradient(180deg,#b7b4d6,#8a86b4)] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.35),0_1px_2px_rgb(var(--shadow-ink)/0.18)] dark:bg-[linear-gradient(180deg,#8f8ac4,#5c5796)]",
         className,
       )}
     >
-      PR
+      <svg viewBox="0 0 40 40" className="size-full" fill="#fff">
+        <circle cx="20" cy="15.4" r="7.1" />
+        <path d="M20 25.2c-7.3 0-13.2 4.9-13.2 12.2V41h26.4v-3.6c0-7.3-5.9-12.2-13.2-12.2Z" />
+      </svg>
     </span>
   )
 }
@@ -56,7 +58,7 @@ function ThemeToggle() {
       size="icon"
       onClick={toggle}
       aria-label={dark ? "Włącz jasny motyw" : "Włącz ciemny motyw"}
-      title={dark ? "Jasny motyw" : "Ciemny motyw"}
+      title={dark ? "Motyw ciemny" : "Motyw jasny"}
     >
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
@@ -125,10 +127,19 @@ function Notifications() {
                   onClick={() => setRead((s) => new Set(s).add(n.id))}
                   className="flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition-colors hover:bg-fill-hover"
                 >
-                  <StatusDot
-                    tone={isRead ? "neutral" : n.tone === "attention" ? "attention" : "accent"}
-                    className={cn("mt-1.5 shrink-0", isRead && "opacity-40")}
-                  />
+                  {n.tone === "attention" ? (
+                    <TriangleAlert
+                      aria-hidden
+                      className={cn("mt-0.5 size-4 shrink-0", isRead ? "text-stone" : "text-warn")}
+                      strokeWidth={2.1}
+                    />
+                  ) : (
+                    <Info
+                      aria-hidden
+                      className={cn("mt-0.5 size-4 shrink-0", isRead ? "text-stone" : "text-ink-2")}
+                      strokeWidth={2.1}
+                    />
+                  )}
                   <span className="min-w-0 flex-1">
                     <span className={cn("block text-sm leading-snug", isRead ? "text-mute" : "font-semibold text-ink")}>
                       {n.title}
@@ -189,17 +200,62 @@ function AccountMenu() {
   )
 }
 
+/** What the bar says on each page: its name, a line of context, and the way back. */
+const PAGES: Record<string, { title: string; note: string; back?: string }> = {
+  // The greeting itself is on the page (hub-page.tsx), so the bar names the organisation.
+  "/": { title: "Obszary księgowe", note: ORGANIZATION },
+  "/rejestry-vat": { title: "Rejestry i VAT", note: ORGANIZATION, back: "Obszary księgowe" },
+}
+
+/**
+ * The left of the bar says where you are. The title here is the page's <h1>,
+ * so every page can start with its content right under the navigation.
+ */
+function Wayfinding() {
+  const { pathname } = useLocation()
+  const page = PAGES[pathname]
+  return (
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.div
+        key={page?.title ?? "elsewhere"}
+        initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+        transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
+        className="flex min-w-0 items-center gap-2.5"
+      >
+        {page ? (
+          <>
+            {page.back && (
+              <Button variant="glass" size="icon" asChild className="-ml-1 sm:-ml-1.5">
+                <Link to="/" aria-label={`Wróć do: ${page.back}`} title={page.back}>
+                  <ArrowLeft strokeWidth={2} />
+                </Link>
+              </Button>
+            )}
+            <div className="min-w-0 leading-tight">
+              <h1 className="truncate font-display text-[17px] font-medium tracking-[-0.01em] sm:text-xl">{page.title}</h1>
+              <p className="hidden truncate text-xs text-mute sm:block">{page.note}</p>
+            </div>
+          </>
+        ) : (
+          <Link
+            to="/"
+            className="truncate rounded-full font-display text-[17px] font-medium tracking-[-0.01em] outline-none focus-visible:ring-2 focus-visible:ring-accent sm:text-xl"
+          >
+            Obszary księgowe
+          </Link>
+        )}
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 export function TopBar() {
   return (
     <header className="no-print sticky top-0 z-40 px-3 pt-[max(env(safe-area-inset-top),10px)] sm:px-5 sm:pt-4">
-      <div className="glass mx-auto flex h-16 max-w-[1200px] items-center gap-3 rounded-full pl-3 pr-2.5 sm:pl-3.5">
-        <Link to="/" className="flex min-w-0 items-center gap-3 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-accent" aria-label="Obszary księgowe — strona główna">
-          <AppMark />
-          <span className="truncate font-display text-[17px] font-medium tracking-[-0.01em] sm:text-xl">
-            <span className="sm:hidden">Witaj, {USER.name.split(" ")[0]}!</span>
-            <span className="hidden sm:inline">Witaj, {USER.name}!</span>
-          </span>
-        </Link>
+      <div className="glass mx-auto flex h-16 max-w-[1200px] items-center gap-3 rounded-full pl-5 pr-2.5 sm:pl-6">
+        <Wayfinding />
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
           <Notifications />
