@@ -14,10 +14,18 @@ import { SCENARIOS, useScenario } from "@/lib/scenario"
 import { installSheen } from "@/lib/sheen"
 import { cn } from "@/lib/utils"
 
+/**
+ * The backdrop rides along the whole page in a track and sticks to the
+ * screen inside it. It is sticky rather than fixed on purpose: iOS Safari
+ * clips fixed layers to the viewport it reports, so they stop short of its
+ * status bar and floating bottom bar, while sticky ones are drawn under both.
+ */
 function Backdrop() {
   return (
-    <div aria-hidden className="no-print pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <Silk />
+    <div aria-hidden className="no-print pointer-events-none absolute inset-0 -z-10">
+      <div className="backdrop-frame">
+        <Silk />
+      </div>
     </div>
   )
 }

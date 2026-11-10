@@ -639,6 +639,41 @@
     inset: 0;
   }
 
+  .backdrop-frame {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100lvh;
+    overflow: hidden;
+  }
+
+  /* iOS Safari: the frame reaches past the viewport it reports, under the
+     status bar (80px) and under the floating bottom bar (110px), so the silk
+     runs on beneath both. svh keeps the canvas one size while the bars grow
+     and shrink. Only there: elsewhere the overscan is pixels nobody sees.
+
+     What Safari never draws is anything above the top of the page, so at the
+     top of the page the status bar shows the plain page colour. The silk
+     fades into that colour, which makes the edge a soft one instead of a cut,
+     and fades out at its very bottom for the end of the page, where the frame
+     has to stop with the document. */
+  @supports (-webkit-touch-callout: none) {
+    .backdrop-frame {
+      top: -80px;
+      margin-top: -80px;
+      height: calc(100svh + 190px);
+    }
+
+    .backdrop-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, var(--canvas) 80px, transparent 200px),
+        linear-gradient(to top, var(--canvas), transparent 56px);
+    }
+  }
+
   .accent-fill {
     background: var(--accent-fill);
     color: #fff;
