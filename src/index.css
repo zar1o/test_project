@@ -839,8 +839,8 @@ html[data-deck] .floating-icons {
   transition-duration: 120ms;
 }
 
-/* Rendered images that keep the 3D objects company: they drift like them,
-   and like them they wait out the deck transition. */
+/* The rendered sparkle keeps the 3D objects company: it drifts like them,
+   and like them it waits out the deck transition. */
 .deco {
   transition: opacity 500ms var(--ease-out-quart);
 }
@@ -854,10 +854,6 @@ html[data-deck] .deco {
   .deco-sparkle {
     animation: deco-sparkle 6.5s var(--ease-in-out-soft) infinite alternate;
   }
-
-  .deco-planet {
-    animation: deco-planet 10s var(--ease-in-out-soft) infinite alternate;
-  }
 }
 
 @keyframes deco-sparkle {
@@ -866,15 +862,6 @@ html[data-deck] .deco {
   }
   to {
     transform: translateY(5px) rotate(6deg);
-  }
-}
-
-@keyframes deco-planet {
-  from {
-    transform: translateY(-7px) rotate(-5deg);
-  }
-  to {
-    transform: translateY(7px) rotate(4deg);
   }
 }
 

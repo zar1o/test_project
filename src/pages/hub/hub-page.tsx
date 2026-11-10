@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { motion, useReducedMotion } from "motion/react"
 import { Info } from "lucide-react"
-import planet from "@/assets/planet.avif"
 import { Chip } from "@/components/ui/chip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { fetchHub } from "@/data/api"
@@ -122,20 +121,6 @@ export function HubPage() {
   return (
     <div className="relative">
       <FloatingIcons />
-
-      {/* A rendered image for wide screens, under the cards: a planet towards
-          the upper left. */}
-      <div
-        aria-hidden
-        className="no-print pointer-events-none absolute inset-y-0 left-1/2 -z-[1] hidden w-screen -translate-x-1/2 lg:block"
-      >
-        <img
-          src={planet}
-          alt=""
-          draggable={false}
-          className="deco deco-planet absolute -top-3 left-[clamp(10px,3vw,68px)] w-[clamp(150px,14.5vw,224px)] select-none"
-        />
-      </div>
 
       <motion.section
         {...enter(0, 10, 0.45)}

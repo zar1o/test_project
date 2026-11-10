@@ -1,6 +1,6 @@
 // The 3D layer of the hub: its icons rebuilt as glass objects that float over
-// the cards they belong to, plus a few silver pieces. (The sparkle and the
-// planet on the page are rendered images, placed in the DOM.)
+// the cards they belong to, plus a few silver pieces. (The sparkle on the
+// page is a rendered image, placed in the DOM.)
 //
 // The look is "dispersed glass": every object is a saturated core sealed in a
 // thick shell of clear glass. The shell really refracts the core — three.js
